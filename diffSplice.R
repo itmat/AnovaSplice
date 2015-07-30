@@ -1,4 +1,4 @@
-#source("/path/to/file/my_fn_lib1.r")
+source("/Users/hayer/Documents/DifferentialSplicing/AnovaSplice/anovasplicecalc.R")
 
 setwd("~/Documents/DifferentialSplicing/")
 rm(list=ls(all=TRUE))
@@ -13,6 +13,7 @@ exons <- character(max_num_exons)
 
 #mylist <- list()
 #mylist[[ key ]] <- value
+
 k = 1
 for (i in seq(dim(gtf_file)[1])) {
 #for (i in seq(100)) {
@@ -31,13 +32,21 @@ rm(exons)
 # unique(mapping[mapping$exons == "exon:chr1:8435108-8435200",2])
 d = read.csv(pipe("cut -f 1-17 FINAL_master_list_of_exons_counts_MIN.emanuela_NEW.txt"),sep = "\t", header = TRUE, na.strings = "",stringsAsFactors=FALSE)
 
-experiment = data.frame(Group = c(rep("Control",4),rep("Treatment",4)), SampleName = colnames(d)[2:9],
+experiment = data.frame(Group = c(rep("Control",8),rep("Treatment",8)), SampleName = colnames(d)[2:17],
                         stringsAsFactors=FALSE)
 
+results = data.frame(
+  ensname = character(length(ensgene)),
+  pExon = double(length(ensgene)), 
+  pGroup = double(length(ensgene)),
+  pInteraction =double(length(ensgene)),
+  stringsAsFactors=FALSE
+)
 
+i = 1
 for (ensgene_name in ensgene) {
   current_exons = mapping[mapping$ensgene == ensgene_name,1]
-  Exons = character(length(current_exons)*dim(experiment)[1])
+  Exon = character(length(current_exons)*dim(experiment)[1])
   Genes = character(length(current_exons)*dim(experiment)[1])
   Group = character(length(current_exons)*dim(experiment)[1])
   Sample = character(length(current_exons)*dim(experiment)[1])
@@ -46,7 +55,7 @@ for (ensgene_name in ensgene) {
   d2 = d[d$id %in% current_exons,]
   for (exon in current_exons) {
     if (!is.na(as.numeric(d2[d2$id==exon,experiment[,2]])[1])) {
-      Exons[k:(k+dim(experiment)[1]-1)] = exon
+      Exon[k:(k+dim(experiment)[1]-1)] = exon
       Genes[k:(k+dim(experiment)[1]-1)] = ensgene_name
       Group[k:(k+dim(experiment)[1]-1)] = experiment[,1]
       Sample[k:(k+dim(experiment)[1]-1)] = experiment[,2]
@@ -55,15 +64,20 @@ for (ensgene_name in ensgene) {
     }
     
   }
-  
-  allGenes = data.frame(Exons,Genes,Group,Sample,Counts, stringsAsFactors=FALSE)
-  allGenes = allGenes[allGenes$Exons != '',]
+  Exon = Exon[Exon != '']
+  Group = Group[Group != '']
+  Counts = Counts[1:length(Group)]
+  #allGenes = data.frame(Exon,Genes,Group,Sample,Counts, stringsAsFactors=FALSE)
+  #allGenes = allGenes[allGenes$Exon != '',]
   
   # TODO
-  print("call faith")
+  #print("call faith")
+  results[i,] = c(ensgene_name, twowayanova(data.frame(Exon,Group,Counts, stringsAsFactors=FALSE)))
   #result = call_FAITHS_function(allGenes)
-  
-  
+  if (i == 1000) {
+    break
+  }
+  i = i +1
 
 }
 

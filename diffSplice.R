@@ -45,6 +45,7 @@ run_everything <- function(ensgene) {
   pInteraction =double(length(ensgene))
   
   i = 1
+  first = TRUE
   for (ensgene_name in ensgene) {
     current_exons = mapping[mapping$ensgene == ensgene_name,1]
     Exon = character(length(current_exons)*dim(experiment)[1])
@@ -54,6 +55,7 @@ run_everything <- function(ensgene) {
     Counts = integer(length(current_exons)*dim(experiment)[1])
     k = 1
     d2 = d[d$id %in% current_exons,]
+    
     for (exon in current_exons) {
       if (!is.na(as.numeric(d2[d2$id==exon,experiment[,2]])[1])) {
         Exon[k:(k+dim(experiment)[1]-1)] = exon
@@ -67,7 +69,9 @@ run_everything <- function(ensgene) {
     }
     Exon = Exon[Exon != '']
     Group = Group[Group != '']
+    Genes = Genes[1:length(Group)]
     Counts = Counts[1:length(Group)]
+    Sample = Sample[1:length(Group)]
     #print(Exon)
     #print(Group)
     #print(Counts)
@@ -83,11 +87,22 @@ run_everything <- function(ensgene) {
     } else {
       res = twowayanova(data.frame(Exon,Group,Counts, stringsAsFactors=FALSE))
       pExon[i] = res[1]
+      pExons = rep(res[1],length(Group))
       pGroup[i] = res[2]
+      pGroups = rep(res[2],length(Group))
       pInteraction[i] = res[3]
+      pInteractions = rep(res[3],length(Group))
       #result = call_FAITHS_function(allGenes)
+      if (first == TRUE) {
+        write.table(file = "results_for_faith.csv",data.frame(Exon,Group,Counts,Genes,Sample,pExons,pGroups,pInteractions),row.names = FALSE,sep = ",")
+        #print("NINA")
+        first = FALSE
+      } else {
+        #print("LALALALALALA")
+        write.table(file = "results_for_faith.csv",data.frame(Exon,Group,Counts,Genes,Sample,pExons,pGroups,pInteractions),append = TRUE,row.names = FALSE,sep = ",",col.names = FALSE)
+      }
     }
-    #if (i == 1000) {
+    #if (i == 100) {
     #  break
     #}
     i = i +1

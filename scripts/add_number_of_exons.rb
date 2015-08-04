@@ -2,7 +2,7 @@ usage= <<-eof
 USAGE: TODO
   ruby add_number_of_exons.rb file.gtf in.csv out.csv
   ____________________________________________________
-  Adds number of exons to in.csv for ENMUSG
+  Adds number of exons to in.csv for ENSMUSG
   IN: file.gtf in.csv
   OUT: out.csv
   in.csv needs to look like this:
@@ -17,7 +17,10 @@ USAGE: TODO
 
 eof
 
-puts usage if ARGV.length != 3
+if ARGV.length != 3
+  puts usage
+  exit(2)
+end
 
 num_of_exons = {}
 exons = {}

@@ -20,7 +20,10 @@ USAGE:
 
 eof
 
-puts usage if ARGV.length != 3
+if ARGV.length != 3
+  puts usage
+  exit(2)
+end
 
 mapping = {}
 File.open(ARGV[1]).each do |line|

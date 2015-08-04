@@ -35,53 +35,159 @@ d = read.csv(pipe("cut -f 1-17 FINAL_master_list_of_exons_counts_MIN.emanuela_NE
 experiment = data.frame(Group = c(rep("Control",8),rep("Treatment",8)), SampleName = colnames(d)[2:17],
                         stringsAsFactors=FALSE)
 
-results = data.frame(
-  ensname = character(length(ensgene)),
-  pExon = double(length(ensgene)), 
-  pGroup = double(length(ensgene)),
-  pInteraction =double(length(ensgene)),
-  stringsAsFactors=FALSE
-)
 
-i = 1
-for (ensgene_name in ensgene) {
-  current_exons = mapping[mapping$ensgene == ensgene_name,1]
-  Exon = character(length(current_exons)*dim(experiment)[1])
-  Genes = character(length(current_exons)*dim(experiment)[1])
-  Group = character(length(current_exons)*dim(experiment)[1])
-  Sample = character(length(current_exons)*dim(experiment)[1])
-  Counts = integer(length(current_exons)*dim(experiment)[1])
-  k = 1
-  d2 = d[d$id %in% current_exons,]
-  for (exon in current_exons) {
-    if (!is.na(as.numeric(d2[d2$id==exon,experiment[,2]])[1])) {
-      Exon[k:(k+dim(experiment)[1]-1)] = exon
-      Genes[k:(k+dim(experiment)[1]-1)] = ensgene_name
-      Group[k:(k+dim(experiment)[1]-1)] = experiment[,1]
-      Sample[k:(k+dim(experiment)[1]-1)] = experiment[,2]
-      Counts[k:(k+dim(experiment)[1]-1)] = as.numeric(d2[d2$id==exon,experiment[,2]])
-      k = k+dim(experiment)[1]
+run_everything <- function(ensgene) {
+  
+
+  #ensname = character(length(ensgene))
+  pExon = double(length(ensgene)) 
+  pGroup = double(length(ensgene))
+  pInteraction =double(length(ensgene))
+  
+  i = 1
+  for (ensgene_name in ensgene) {
+    current_exons = mapping[mapping$ensgene == ensgene_name,1]
+    Exon = character(length(current_exons)*dim(experiment)[1])
+    Genes = character(length(current_exons)*dim(experiment)[1])
+    Group = character(length(current_exons)*dim(experiment)[1])
+    Sample = character(length(current_exons)*dim(experiment)[1])
+    Counts = integer(length(current_exons)*dim(experiment)[1])
+    k = 1
+    d2 = d[d$id %in% current_exons,]
+    for (exon in current_exons) {
+      if (!is.na(as.numeric(d2[d2$id==exon,experiment[,2]])[1])) {
+        Exon[k:(k+dim(experiment)[1]-1)] = exon
+        Genes[k:(k+dim(experiment)[1]-1)] = ensgene_name
+        Group[k:(k+dim(experiment)[1]-1)] = experiment[,1]
+        Sample[k:(k+dim(experiment)[1]-1)] = experiment[,2]
+        Counts[k:(k+dim(experiment)[1]-1)] = as.numeric(d2[d2$id==exon,experiment[,2]])
+        k = k+dim(experiment)[1]
+      }
+      
     }
+    Exon = Exon[Exon != '']
+    Group = Group[Group != '']
+    Counts = Counts[1:length(Group)]
+    #print(Exon)
+    #print(Group)
+    #print(Counts)
+    #allGenes = data.frame(Exon,Genes,Group,Sample,Counts, stringsAsFactors=FALSE)
+    #allGenes = allGenes[allGenes$Exon != '',]
+    
+    # TODO
+    #print("call faith")
+    if (length(Exon)== 0 || length(unique(Exon))==1) {
+      pExon[i] = NA
+      pGroup[i] = NA
+      pInteraction[i] = NA
+    } else {
+      res = twowayanova(data.frame(Exon,Group,Counts, stringsAsFactors=FALSE))
+      pExon[i] = res[1]
+      pGroup[i] = res[2]
+      pInteraction[i] = res[3]
+      #result = call_FAITHS_function(allGenes)
+    }
+    #if (i == 1000) {
+    #  break
+    #}
+    i = i +1
+  
+  }
+  
+  results = data.frame(
+    ensgene,
+    pExon, 
+    pGroup,
+    pInteraction,
+    stringsAsFactors=FALSE
+  )
+  return(results)
+}
+
+results = run_everything(ensgene)
+
+#system.time({results = run_everything(ensgene)})
+#user   system  elapsed 
+#2643.795  448.449 3121.301 
+
+
+
+run_everything2 <- function(ensgene) {
+  
+  
+  #ensname = character(length(ensgene))
+  pExon = double(length(ensgene)) 
+  pGroup = double(length(ensgene))
+  pInteraction = double(length(ensgene))
+  
+  i = 1
+  #for (ensgene_name in ensgene) {
+  inner <- function(ensgene_name) {
+    current_exons = mapping[mapping$ensgene == ensgene_name,1]
+    Exon = character(length(current_exons)*dim(experiment)[1])
+    Genes = character(length(current_exons)*dim(experiment)[1])
+    Group = character(length(current_exons)*dim(experiment)[1])
+    Sample = character(length(current_exons)*dim(experiment)[1])
+    Counts = integer(length(current_exons)*dim(experiment)[1])
+    k = 1
+    d2 = d[d$id %in% current_exons,]
+    for (exon in current_exons) {
+      if (!is.na(as.numeric(d2[d2$id==exon,experiment[,2]])[1])) {
+        Exon[k:(k+dim(experiment)[1]-1)] = exon
+        Genes[k:(k+dim(experiment)[1]-1)] = ensgene_name
+        Group[k:(k+dim(experiment)[1]-1)] = experiment[,1]
+        Sample[k:(k+dim(experiment)[1]-1)] = experiment[,2]
+        Counts[k:(k+dim(experiment)[1]-1)] = as.numeric(d2[d2$id==exon,experiment[,2]])
+        k = k+dim(experiment)[1]
+      }
+      
+    }
+    Exon = Exon[Exon != '']
+    Group = Group[Group != '']
+    Counts = Counts[1:length(Group)]
+    #print(Exon)
+    #print(Group)
+    #print(Counts)
+    #allGenes = data.frame(Exon,Genes,Group,Sample,Counts, stringsAsFactors=FALSE)
+    #allGenes = allGenes[allGenes$Exon != '',]
+    
+    # TODO
+    #print("call faith")
+    if (length(Exon)== 0 || length(unique(Exon))==1) {
+      pExon[i] = NA
+      pGroup[i] = NA
+      pInteraction[i] = NA
+    } else {
+      res = twowayanova(data.frame(Exon,Group,Counts, stringsAsFactors=FALSE))
+      pExon[i] = res[1]
+      pGroup[i] = res[2]
+      pInteraction[i] = res[3]
+      #result = call_FAITHS_function(allGenes)
+    }
+    #if (i == 1000) {
+    #  break
+    #}
+    i = i +1
+    
+    
     
   }
-  Exon = Exon[Exon != '']
-  Group = Group[Group != '']
-  Counts = Counts[1:length(Group)]
-  #allGenes = data.frame(Exon,Genes,Group,Sample,Counts, stringsAsFactors=FALSE)
-  #allGenes = allGenes[allGenes$Exon != '',]
   
-  # TODO
-  #print("call faith")
-  results[i,] = c(ensgene_name, twowayanova(data.frame(Exon,Group,Counts, stringsAsFactors=FALSE)))
-  #result = call_FAITHS_function(allGenes)
-  if (i == 1000) {
-    break
-  }
-  i = i +1
-
+  lapply(ensgene, inner)
+  
+  results = data.frame(
+    ensgene,
+    pExon, 
+    pGroup,
+    pInteraction,
+    stringsAsFactors=FALSE
+  )
+  return(results)
 }
 
 
+
+system.time({results2 = run_everything2(ensgene)})
 
 head(d)
 

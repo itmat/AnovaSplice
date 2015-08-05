@@ -30,9 +30,18 @@ mapping = unique(data.frame(exons,ensgene,stringsAsFactors=FALSE))
 ensgene = unique(ensgene)
 rm(exons)
 # unique(mapping[mapping$exons == "exon:chr1:8435108-8435200",2])
-d = read.csv(pipe("cut -f 1-17 FINAL_master_list_of_exons_counts_MIN.emanuela_NEW.txt"),sep = "\t", header = TRUE, na.strings = "",stringsAsFactors=FALSE)
+#d = read.csv(pipe("cut -f 1-17 FINAL_master_list_of_exons_counts_MIN.emanuela_NEW.txt"),sep = "\t", header = TRUE, na.strings = "",stringsAsFactors=FALSE)
+#CTRL vs. CTRL IL1B
+d = read.csv(pipe("cut -f 1,18-25,42-49 FINAL_master_list_of_exons_counts_MIN.emanuela_NEW.txt"),sep = "\t", header = TRUE, na.strings = "",stringsAsFactors=FALSE)
+
+
 
 experiment = data.frame(Group = c(rep("Control",8),rep("Treatment",8)), SampleName = colnames(d)[2:17],
+                        stringsAsFactors=FALSE)
+
+
+
+experiment = data.frame(Group = c(rep("Treatment",8),rep("Control",8)), SampleName = colnames(d)[2:17],
                         stringsAsFactors=FALSE)
 
 
@@ -43,6 +52,7 @@ run_everything <- function(ensgene) {
   pExon = double(length(ensgene)) 
   pGroup = double(length(ensgene))
   pInteraction =double(length(ensgene))
+  NumberOfExons = integer(length(ensgene))
   
   i = 1
   first = TRUE
@@ -84,6 +94,7 @@ run_everything <- function(ensgene) {
       pExon[i] = NA
       pGroup[i] = NA
       pInteraction[i] = NA
+      NumberOfExons[i] = length(unique(Exon))
     } else {
       res = twowayanova(data.frame(Exon,Group,Counts, stringsAsFactors=FALSE))
       pExon[i] = res[1]
@@ -92,19 +103,23 @@ run_everything <- function(ensgene) {
       pGroups = rep(res[2],length(Group))
       pInteraction[i] = res[3]
       pInteractions = rep(res[3],length(Group))
+      NumberOfExons[i] = length(unique(Exon))
       #result = call_FAITHS_function(allGenes)
       if (first == TRUE) {
-        write.table(file = "results_for_faith.csv",data.frame(Exon,Group,Counts,Genes,Sample,pExons,pGroups,pInteractions),row.names = FALSE,sep = ",")
+        write.table(file = "results_ILvsCtrl.csv",data.frame(Exon,Group,Counts,Genes,Sample,pExons,pGroups,pInteractions),row.names = FALSE,sep = ",")
         #print("NINA")
         first = FALSE
       } else {
         #print("LALALALALALA")
-        write.table(file = "results_for_faith.csv",data.frame(Exon,Group,Counts,Genes,Sample,pExons,pGroups,pInteractions),append = TRUE,row.names = FALSE,sep = ",",col.names = FALSE)
+        write.table(file = "results_ILvsCtrl.csv",data.frame(Exon,Group,Counts,Genes,Sample,pExons,pGroups,pInteractions),append = TRUE,row.names = FALSE,sep = ",",col.names = FALSE)
       }
     }
     #if (i == 100) {
     #  break
     #}
+    if (i %% 1000 == 0 ) {
+      print(i)
+    }
     i = i +1
   
   }
@@ -114,12 +129,15 @@ run_everything <- function(ensgene) {
     pExon, 
     pGroup,
     pInteraction,
+    NumberOfExons,
     stringsAsFactors=FALSE
   )
   return(results)
 }
 
 results = run_everything(ensgene)
+
+write.csv(results, "results_ILvsCtrl_summary.csv")
 
 #system.time({results = run_everything(ensgene)})
 #user   system  elapsed 

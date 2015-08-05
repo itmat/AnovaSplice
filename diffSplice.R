@@ -30,9 +30,9 @@ mapping = unique(data.frame(exons,ensgene,stringsAsFactors=FALSE))
 ensgene = unique(ensgene)
 rm(exons)
 # unique(mapping[mapping$exons == "exon:chr1:8435108-8435200",2])
-#d = read.csv(pipe("cut -f 1-17 FINAL_master_list_of_exons_counts_MIN.emanuela_NEW.txt"),sep = "\t", header = TRUE, na.strings = "",stringsAsFactors=FALSE)
+d = read.csv(pipe("cut -f 1-17 FINAL_master_list_of_exons_counts_MIN.emanuela_NEW.txt"),sep = "\t", header = TRUE, na.strings = "",stringsAsFactors=FALSE)
 #CTRL vs. CTRL IL1B
-d = read.csv(pipe("cut -f 1,18-25,42-49 FINAL_master_list_of_exons_counts_MIN.emanuela_NEW.txt"),sep = "\t", header = TRUE, na.strings = "",stringsAsFactors=FALSE)
+#d = read.csv(pipe("cut -f 1,18-25,42-49 FINAL_master_list_of_exons_counts_MIN.emanuela_NEW.txt"),sep = "\t", header = TRUE, na.strings = "",stringsAsFactors=FALSE)
 
 
 

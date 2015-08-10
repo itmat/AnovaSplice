@@ -1,5 +1,10 @@
 # AnovaSplice
 
+## ToDo
+* Run data through without correction
+* Run on Rofe versus cele
+* Add track with significant exons (sign if < .25)
+
 ## Notes
 
 ### Annotation

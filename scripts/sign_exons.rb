@@ -2,7 +2,7 @@ require "csv"
 
 usage= <<-eof
 USAGE:
-  ruby sign_exons.rb anno.gtf ttest.csv experiment.csv results.csv sign_exons.csv
+  ruby sign_exons.rb anno.gtf mann_whitney.csv experiment.csv results.csv sign_exons.csv
   ____________________________________________________
   Adds number of exons to in.csv for ENSMUSG
   IN: file.gtf in.csv
@@ -14,7 +14,7 @@ USAGE:
     "3",3,"ENSMUSG00000026134",3.64302659836332e-10,0.273832557832243,0.90811608560453,14,1,7.72438527406982e-10,0.41094697897545,1
     "4",4,"ENSMUSG00000033569",NA,NA,NA,31,1,NA,NA,NA
 
-  head -5 ttest.csv
+  head -5 mann_whitney.csv
     "","id","Sample_9574_SS","Sample_9575_SS","Sample_9578_SS","Sample_9579_SS","Sample_9580_SS","Sample_9581_SS","Sample_9582_SS","Sample_9583_SS","P_Val","FDR"
     "1","exon:chr1:3204563-3207049",1,0,1,2,2,2,1,3,0.648941813187414,0.888219437653876
     "10","exon:chr1:4481009-4482749",24,24,20,10,11,16,13,19,0.46782507728497,0.761472006238808

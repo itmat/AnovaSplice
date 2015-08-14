@@ -1,7 +1,7 @@
 # Run t-test followed BH
 library(argparse)
 
-parser <- ArgumentParser(description='Run t-test followed by BH',prog = "Rscript ttest_followed_by_BH.R")
+parser <- ArgumentParser(description='Run t-test followed by BH',prog = "Rscript mann_whitney_followed_by_BH.R")
 
 parser$add_argument('experiment', metavar='experiment.csv', type="character", nargs=1,
                     help='Experiment')
@@ -49,12 +49,12 @@ head(d)
 cond = unique(experiment$Group)
 head(cond)
 
-data=d[rowSums(d[ ,-1])>10,] 
+data=d[rowSums(d[ ,-1])>10,]
 P_Val = c(rep(NA,dim(data)[1]))
-#colnames(p_val) = "P_VAL" 
+#colnames(p_val) = "P_VAL"
 for (i in 1:dim(data)[1]) {
-  p_val_cur <- tryCatch( wilcox.test(as.matrix(data[i,experiment$SampleName[experiment$Group == cond[1]]]),as.matrix(data[i,experiment$SampleName[experiment$Group == cond[2]]]),alternative="two.sided",exact=TRUE)$p.value, error=function(x) 1 ) 
-  P_Val[i]=p_val_cur 
+  p_val_cur <- tryCatch( wilcox.test(as.matrix(data[i,experiment$SampleName[experiment$Group == cond[1]]]),as.matrix(data[i,experiment$SampleName[experiment$Group == cond[2]]]),alternative="two.sided",exact=TRUE)$p.value, error=function(x) 1 )
+  P_Val[i]=p_val_cur
 }
 
 FDR <- p.adjust(P_Val, method="BH")

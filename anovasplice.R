@@ -16,6 +16,11 @@ parser$add_argument('counts', metavar='count_file.txt', type="character", nargs=
 parser$add_argument('result', metavar='result.csv', type="character", nargs=1,
                     help='Out File')
 
+parser$add_argument('--normalize', dest='normalize', action='store_const',
+                    const='normalize', default='not',
+                    help='normalize by exon length  (default: raw counts)')
+
+# Normalize option
 
 args <- commandArgs(TRUE)
 
@@ -204,7 +209,13 @@ run_everything <- function(ensgene) {
         #  print("aaaaaaa")
         #  return()
         #}
-        Counts[k:(k+dim(experiment)[1]-1)] = log(as.numeric(d2[d2$id==exon,experiment[,2]])/(as.numeric(mapping$exons_length[mapping$exons == exon][1])/100)+1) #as.numeric(d2[d2$id==exon,experiment[,2]])
+        if (args$normalize == "normalize") {
+          Counts[k:(k+dim(experiment)[1]-1)] = 
+            log(as.numeric(d2[d2$id==exon,experiment[,2]])/
+                  (as.numeric(mapping$exons_length[mapping$exons == exon][1])/100)+1) 
+        } else {
+          Counts[k:(k+dim(experiment)[1]-1)] = as.numeric(d2[d2$id==exon,experiment[,2]])
+        }
         k = k+dim(experiment)[1]
       }
       
